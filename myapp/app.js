@@ -30,16 +30,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+	extended: false
+}));
 app.use(cookieParser());
 
 app.listen(app.get('port'));
 // module.exports = app;
 
+
+/*Access restrict*/
+function restrict(req, res, next) {
+	if (req.session.user) {
+		next();
+	} else {
+		req.session.error = 'Access denied!';
+		res.redirect('/login'); //重定向路径
+	}
+}
+
 //Enter
 app.use(function(req, res, next) {
-  console.log(req);
-  next();
+	restrict(req, res, next);
 });
 
 /*Router*/
@@ -52,11 +64,18 @@ app.use('/users', users);
 
 /* Server debug*/
 app.use(function(err, req, res, next) {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+	console.error(err.stack);
+	res.status(500).send('Something broke!');
 });
 
 /*404 debug*/
 app.use(function(req, res, next) {
-  res.status(404).send('Sorry cant find that!');
+	res.status(404).send('Sorry cant find that!');
 });
+
+
+
+/*refers
+ *cd D:\git\express 
+ *node examples/**
+*/
